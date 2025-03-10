@@ -23,6 +23,7 @@ import {
 	Mic,
 	CheckCheckIcon,
 } from 'lucide-react';
+import { Label } from './components/ui/label';
 
 function App() {
 	const [phone, setPhone] = useState('');
@@ -87,7 +88,7 @@ function App() {
 			<div className="bg-black/50 absolute inset-0 z-10" />
 			<div className="z-20 mx-8 flex gap-4">
 				<Card className="p-6 space-y-2 ">
-					<h2 className="font-bold text-5xl bg-gradient-to-b from-primary to-green-500 bg-clip-text text-transparent">
+					<h2 className="font-bold text-5xl bg-gradient-to-t from-primary to-green-500 bg-clip-text text-transparent">
 						My Whats Link
 					</h2>
 					<div className="space-y-2">
@@ -96,22 +97,35 @@ function App() {
 						</h1>
 
 						<p className="text-lg font-medium">
-							Crie links com mensagens personalizadas para o WhatsApp de forma
-							fácil e rápida!
+							Crie links com mensagens personalizadas para o seu WhatsApp de
+							forma fácil e rápida!
 						</p>
 					</div>
 
-					<div className="space-y-3">
-						<Input
-							placeholder="Número do WhatsApp (com DDD)"
-							value={phone}
-							onChange={handlePhoneChange}
-						/>
-						<Input
-							placeholder="Mensagem (opcional)"
-							value={message}
-							onChange={(e) => setMessage(e.target.value)}
-						/>
+					<div className="space-y-4">
+						<div className="flex flex-col gap-1">
+							<Label htmlFor="whatsapp-number" className="gap-1">
+								Digite o número de WhatsApp com DDD
+							</Label>
+							<Input
+								id="whatsapp-number"
+								placeholder="(11) 99999-9999"
+								value={phone}
+								onChange={handlePhoneChange}
+							/>
+						</div>
+
+						<div className="flex flex-col gap-1">
+							<Label htmlFor="whatsapp-number" className="gap-1">
+								Digite uma mensagem personalizada
+								<span className="font-normal">(opcional)</span>
+							</Label>
+							<Input
+								placeholder="Olá! Tudo bem?"
+								value={message}
+								onChange={(e) => setMessage(e.target.value)}
+							/>
+						</div>
 					</div>
 
 					<Button onClick={generateLink}>Gerar Link</Button>
@@ -178,7 +192,7 @@ function App() {
 					</div>
 
 					<div className="flex-1 mt-2">
-						<span className="bg-gray-100 px-2 py-1 rounded-2xl text-xs shadow">
+						<span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-2xl text-xs shadow">
 							Hoje
 						</span>
 						<div className="flex justify-end mt-6 mr-4 ">
