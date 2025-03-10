@@ -119,19 +119,23 @@ function App() {
 			<div className="bg-black/50 absolute inset-0 z-10" />
 			<div className="z-20 mx-8 flex gap-4">
 				<Card className="p-6 space-y-2 ">
-					<h2 className="font-bold text-5xl bg-gradient-to-t from-primary to-green-500 bg-clip-text text-transparent">
-						My Whats Link
-					</h2>
-					<div className="space-y-2">
+					<p className="text-lg font-medium">
+						Como gerar um link para o meu WhatsApp?
+					</p>
+
+					<div>
+						<h2 className="font-bold text-5xl bg-gradient-to-t from-primary to-green-500 bg-clip-text text-transparent">
+							My Whats Link
+						</h2>
 						<h1 className="text-2xl font-semibold text-primary">
 							Gerador de Link do WhatsApp
 						</h1>
-
-						<p className="text-lg font-medium">
-							Crie links com mensagens personalizadas para o seu WhatsApp de
-							forma fácil e rápida!
-						</p>
 					</div>
+
+					<p className="text-lg font-medium">
+						Crie links com mensagens personalizadas para o seu WhatsApp de forma
+						fácil e rápida!
+					</p>
 
 					<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 						<div className="flex flex-col gap-1">
