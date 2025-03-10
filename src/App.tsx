@@ -1,13 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { format, toZonedTime } from 'date-fns-tz';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import {
-	Tooltip,
-	TooltipTrigger,
-	TooltipContent,
-} from '@/components/ui/tooltip';
+
 import {
 	Clipboard,
 	Check,
@@ -23,53 +19,79 @@ import {
 	Mic,
 	CheckCheckIcon,
 } from 'lucide-react';
+
+import { Input } from '@/components/ui/input';
 import { Label } from './components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+	Tooltip,
+	TooltipTrigger,
+	TooltipContent,
+} from '@/components/ui/tooltip';
+
+const formSchema = z.object({
+	phone: z
+		.string()
+		.transform((value) => value.replace(/\D/g, ''))
+		.refine((value) => value.length >= 10 && value.length <= 11, {
+			message: 'O número deve ter entre 10 e 11 dígitos',
+		}),
+	message: z
+		.string()
+		.max(200, 'A mensagem deve ter no máximo 200 caracteres')
+		.optional(),
+});
+
+type FormData = z.infer<typeof formSchema>;
+
+const formatPhoneNumber = (value: string) => {
+	const cleaned = value.replace(/\D/g, '');
+
+	if (cleaned.length <= 2) {
+		return `${cleaned}`;
+	}
+
+	if (cleaned.length <= 6) {
+		return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2)}`;
+	}
+	if (cleaned.length <= 10) {
+		return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6)}`;
+	}
+	if (cleaned.length <= 11) {
+		return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7, 11)}`;
+	}
+	return value;
+};
 
 function App() {
-	const [phone, setPhone] = useState('');
-	const [message, setMessage] = useState('');
 	const [generatedLink, setGeneratedLink] = useState('');
 	const [copied, setCopied] = useState(false);
 	const [currentTime, setCurrentTime] = useState(new Date());
 
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+		watch,
+		setValue,
+	} = useForm<FormData>({
+		resolver: zodResolver(formSchema),
+	});
+
 	useEffect(() => {
 		const interval = setInterval(() => {
 			setCurrentTime(new Date());
-		}, 60000); // Atualiza a cada minuto
+		}, 60000);
 
 		return () => clearInterval(interval);
 	}, []);
 
-	const formatPhoneNumber = (value: string) => {
-		const cleaned = value.replace(/\D/g, '');
-
-		if (cleaned.length <= 2) {
-			return `${cleaned}`;
-		}
-
-		if (cleaned.length <= 6) {
-			return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2)}`;
-		}
-		if (cleaned.length <= 10) {
-			return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6)}`;
-		}
-		if (cleaned.length <= 11) {
-			return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7, 11)}`;
-		}
-		return value;
-	};
-
-	const handlePhoneChange = (e: { target: { value: string } }) => {
-		const formattedPhone = formatPhoneNumber(e.target.value);
-		setPhone(formattedPhone);
-	};
-
-	const generateLink = () => {
-		if (!phone) return;
-		const cleanedPhone = phone.replace(/\D/g, '');
-		const encodedMessage = encodeURIComponent(message);
+	const onSubmit = (data: FormData) => {
+		const cleanedPhone = data.phone.replace(/\D/g, '');
+		const encodedMessage = encodeURIComponent(data.message || '');
 		setGeneratedLink(
-			`https://wa.me/${cleanedPhone}${message ? `?text=${encodedMessage}` : ''}`,
+			`https://wa.me/${cleanedPhone}${encodedMessage ? `?text=${encodedMessage}` : ''}`,
 		);
 		setCopied(false);
 	};
@@ -82,6 +104,15 @@ function App() {
 
 	const brazilTime = toZonedTime(currentTime, 'America/Sao_Paulo');
 	const formattedTime = format(brazilTime, 'HH:mm');
+
+	const phoneValue = watch('phone');
+
+	useEffect(() => {
+		if (phoneValue) {
+			const formattedPhone = formatPhoneNumber(phoneValue);
+			setValue('phone', formattedPhone);
+		}
+	}, [phoneValue, setValue]);
 
 	return (
 		<main className="h-screen flex items-center justify-center bg-[url(./assets/background.jpg)] font-rubik relative z-0 text-center">
@@ -102,7 +133,7 @@ function App() {
 						</p>
 					</div>
 
-					<div className="space-y-4">
+					<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 						<div className="flex flex-col gap-1">
 							<Label htmlFor="whatsapp-number" className="gap-1">
 								Digite o número de WhatsApp com DDD
@@ -110,9 +141,12 @@ function App() {
 							<Input
 								id="whatsapp-number"
 								placeholder="(11) 99999-9999"
-								value={phone}
-								onChange={handlePhoneChange}
+								className={`${errors.phone && 'focus-visible:border-red-500 focus-visible:ring-red-500/50'}`}
+								{...register('phone')}
 							/>
+							{errors.phone && (
+								<p className="text-sm text-red-500">{errors.phone.message}</p>
+							)}
 						</div>
 
 						<div className="flex flex-col gap-1">
@@ -122,13 +156,16 @@ function App() {
 							</Label>
 							<Input
 								placeholder="Olá! Tudo bem?"
-								value={message}
-								onChange={(e) => setMessage(e.target.value)}
+								className={`${errors.message && 'focus-visible:border-red-500 focus-visible:ring-red-500/50'}`}
+								{...register('message')}
 							/>
+							{errors.message && (
+								<p className="text-sm text-red-500">{errors.message.message}</p>
+							)}
 						</div>
-					</div>
 
-					<Button onClick={generateLink}>Gerar Link</Button>
+						<Button type="submit">Gerar Link</Button>
+					</form>
 
 					<CardContent className="flex flex-col items-center gap-2">
 						<p className="text-sm text-muted-foreground">Seu link:</p>
@@ -180,7 +217,7 @@ function App() {
 								<div className="rounded-full bg-gray-200 w-6">
 									<User className="text-white" />
 								</div>
-								<span className="text-[11px]">{phone}</span>
+								<span className="text-[11px]">{watch('phone')}</span>
 							</div>
 
 							<div className="flex gap-3">
@@ -196,9 +233,9 @@ function App() {
 							Hoje
 						</span>
 						<div className="flex justify-end mt-6 mr-4 ">
-							{message ? (
+							{watch('message') ? (
 								<div className="bg-green-200 rounded-2xl p-4 w-fit text-xs shadow relative ">
-									<span className="mr-10">{message}</span>
+									<span className="mr-10">{watch('message')}</span>
 									<div className="flex items-center gap-0.5 bottom-0 right-0 p-2 absolute">
 										<span className="text-[0.6rem]">{formattedTime}</span>
 										<CheckCheckIcon size={14} />
