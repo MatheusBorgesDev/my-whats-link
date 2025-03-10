@@ -205,7 +205,7 @@ function App() {
 					<CardContent className="flex flex-col items-center gap-2">
 						<p className="text-sm text-muted-foreground">Seu link:</p>
 						<div className="flex items-center gap-2 p-2 border rounded-lg">
-							<span className="text-sm text-primary ">
+							<span className="text-sm text-primary max-w-[250px] truncate">
 								{generatedLink
 									? generatedLink
 									: 'Preencha os campos acima e gere seu link'}
