@@ -3,6 +3,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format, toZonedTime } from 'date-fns-tz';
+import emojiClown from './assets/clown.png';
+import emojiMuted from './assets/muted.png';
+import emojiInLove from './assets/in-love.png';
+import emojiThinking from './assets/thinking.png';
+import emojiHappy from './assets/happy.png';
+import emojiStarFace from './assets/star-face.png';
 
 import {
 	Clipboard,
@@ -45,7 +51,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-const formatPhoneNumber = (value: string) => {
+function formatPhoneNumber(value: string) {
 	const cleaned = value.replace(/\D/g, '');
 
 	if (cleaned.length <= 2) {
@@ -62,7 +68,7 @@ const formatPhoneNumber = (value: string) => {
 		return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7, 11)}`;
 	}
 	return value;
-};
+}
 
 function App() {
 	const [generatedLink, setGeneratedLink] = useState('');
@@ -87,20 +93,20 @@ function App() {
 		return () => clearInterval(interval);
 	}, []);
 
-	const onSubmit = (data: FormData) => {
+	function onSubmit(data: FormData) {
 		const cleanedPhone = data.phone.replace(/\D/g, '');
 		const encodedMessage = encodeURIComponent(data.message || '');
 		setGeneratedLink(
 			`https://wa.me/${cleanedPhone}${encodedMessage ? `?text=${encodedMessage}` : ''}`,
 		);
 		setCopied(false);
-	};
+	}
 
-	const copyToClipboard = () => {
+	function copyToClipboard() {
 		navigator.clipboard.writeText(generatedLink);
 		setCopied(true);
 		setTimeout(() => setCopied(false), 2000);
-	};
+	}
 
 	const brazilTime = toZonedTime(currentTime, 'America/Sao_Paulo');
 	const formattedTime = format(brazilTime, 'HH:mm');
@@ -118,10 +124,25 @@ function App() {
 		<main className="h-screen flex items-center justify-center bg-[url(./assets/background.jpg)] font-rubik relative z-0 text-center">
 			<div className="bg-black/50 absolute inset-0 z-10" />
 			<div className="z-20 mx-8 flex gap-4">
-				<Card className="p-6 space-y-2 ">
-					<p className="text-lg font-medium">
-						Como gerar um link para o meu WhatsApp?
-					</p>
+				<Card className="p-6 space-y-2 relative">
+					<div className="flex gap-4 items-center justify-center">
+						<img src={emojiThinking} alt="" className="w-10" />
+						<p className="text-lg font-medium">
+							Como gerar um link para o meu WhatsApp?
+						</p>
+					</div>
+
+					<img
+						src={emojiInLove}
+						alt=""
+						className="w-40 absolute -top-35 right-5 rotate-12 -z-10"
+					/>
+
+					<img
+						src={emojiHappy}
+						alt=""
+						className="w-36 absolute -bottom-15 -left-30 -rotate-12"
+					/>
 
 					<div>
 						<h2 className="font-bold text-5xl bg-gradient-to-t from-primary to-green-500 bg-clip-text text-transparent">
@@ -149,7 +170,10 @@ function App() {
 								{...register('phone')}
 							/>
 							{errors.phone && (
-								<p className="text-sm text-red-500">{errors.phone.message}</p>
+								<div className="text-sm text-red-500 flex items-center gap-2 justify-center">
+									{errors.phone.message}
+									<img src={emojiClown} alt="" className="w-6" />
+								</div>
 							)}
 						</div>
 
@@ -164,7 +188,10 @@ function App() {
 								{...register('message')}
 							/>
 							{errors.message && (
-								<p className="text-sm text-red-500">{errors.message.message}</p>
+								<div className="text-sm text-red-500 flex items-center gap-2 justify-center">
+									{errors.message.message}
+									<img src={emojiMuted} alt="" className="w-6" />
+								</div>
 							)}
 						</div>
 
@@ -202,8 +229,13 @@ function App() {
 					</CardContent>
 				</Card>
 
-				<div className="hidden md:flex md:flex-col md:justify-between max-w-76 w-76 min-w-76 min-h-[36rem] border-7 border-black border-t-14 border-b-14 rounded-2xl bg-[url(./assets/background.jpg)] bg-cover z-0 relative">
-					<div className="bg-black">
+				<div className="hidden md:flex md:flex-col md:justify-between max-w-76 w-76 min-w-76 min-h-[36rem] border-7 border-black border-t-14 border-b-14 rounded-2xl bg-[url(./assets/background.jpg)] bg-cover z-0 relative ">
+					<img
+						src={emojiStarFace}
+						alt=""
+						className="w-30 absolute -bottom-32 left-22 "
+					/>
+					<div className="bg-black overflow-hidden">
 						<div className="flex justify-between text-[11px] bg-background px-2 pt-1 rounded-t-lg">
 							<span>{formattedTime}</span>
 
