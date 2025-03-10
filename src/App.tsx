@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { format, toZonedTime } from 'date-fns-tz';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -28,12 +29,21 @@ function App() {
 	const [message, setMessage] = useState('');
 	const [generatedLink, setGeneratedLink] = useState('');
 	const [copied, setCopied] = useState(false);
+	const [currentTime, setCurrentTime] = useState(new Date());
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setCurrentTime(new Date());
+		}, 60000); // Atualiza a cada minuto
+
+		return () => clearInterval(interval);
+	}, []);
 
 	const formatPhoneNumber = (value: string) => {
 		const cleaned = value.replace(/\D/g, '');
 
 		if (cleaned.length <= 2) {
-			return `(${cleaned}`;
+			return `${cleaned}`;
 		}
 
 		if (cleaned.length <= 6) {
@@ -69,6 +79,9 @@ function App() {
 		setTimeout(() => setCopied(false), 2000);
 	};
 
+	const brazilTime = toZonedTime(currentTime, 'America/Sao_Paulo');
+	const formattedTime = format(brazilTime, 'HH:mm');
+
 	return (
 		<main className="h-screen flex items-center justify-center bg-[url(./assets/background.jpg)] font-rubik relative z-0 text-center">
 			<div className="bg-black/50 absolute inset-0 z-10" />
@@ -78,7 +91,7 @@ function App() {
 						My Whats Link
 					</h2>
 					<div className="space-y-2">
-						<h1 className="text-3xl font-semibold text-primary">
+						<h1 className="text-2xl font-semibold text-primary">
 							Gerador de Link do WhatsApp
 						</h1>
 
@@ -134,10 +147,10 @@ function App() {
 					</CardContent>
 				</Card>
 
-				<div className="hidden md:flex md:flex-col md:justify-between max-w-76 w-76 min-w-76 min-h-[36rem] border-7 border-black border-t-14 border-b-14 rounded-2xl bg-[url(./assets/background.jpg)] bg-cover relative">
+				<div className="hidden md:flex md:flex-col md:justify-between max-w-76 w-76 min-w-76 min-h-[36rem] border-7 border-black border-t-14 border-b-14 rounded-2xl bg-[url(./assets/background.jpg)] bg-cover z-0 relative">
 					<div className="bg-black">
 						<div className="flex justify-between text-[11px] bg-background px-2 pt-1 rounded-t-lg">
-							<span>16:40</span>
+							<span>{formattedTime}</span>
 
 							<div className="w-3 h-3 bg-black rounded-full absolute top-2 left-34" />
 
@@ -168,12 +181,12 @@ function App() {
 						<span className="bg-gray-100 px-2 py-1 rounded-2xl text-xs shadow">
 							Hoje
 						</span>
-						<div className="flex justify-end mt-6 mr-4 pl-4 ">
+						<div className="flex justify-end mt-6 mr-4 ">
 							{message ? (
 								<div className="bg-green-200 rounded-2xl p-4 w-fit text-xs shadow relative ">
 									<span className="mr-10">{message}</span>
 									<div className="flex items-center gap-0.5 bottom-0 right-0 p-2 absolute">
-										<span className="text-[0.6rem]">16:40</span>
+										<span className="text-[0.6rem]">{formattedTime}</span>
 										<CheckCheckIcon size={14} />
 									</div>
 								</div>
