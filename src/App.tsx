@@ -8,6 +8,7 @@ import { format, toZonedTime } from 'date-fns-tz';
 
 import { Clipboard, Check } from 'lucide-react';
 
+import emojiWink from './assets/wink.png';
 import emojiClown from './assets/clown.png';
 import emojiMuted from './assets/muted.png';
 import emojiHappy from './assets/happy.png';
@@ -25,6 +26,7 @@ import {
 	TooltipTrigger,
 	TooltipContent,
 } from '@/components/ui/tooltip';
+import { toast } from 'sonner';
 
 const formSchema = z.object({
 	phone: z
@@ -96,6 +98,12 @@ function App() {
 		navigator.clipboard.writeText(generatedLink);
 		setCopied(true);
 		setTimeout(() => setCopied(false), 2000);
+		toast(
+			<div className="flex items-center justify-center gap-2 w-full">
+				<span>Link copiado!</span>
+				<img src={emojiWink} alt="" className="w-5" />
+			</div>,
+		);
 	}
 
 	const brazilTime = toZonedTime(currentTime, 'America/Sao_Paulo');
